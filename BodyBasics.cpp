@@ -359,6 +359,7 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
             int width = rct.right;
             int height = rct.bottom;
 			// DY : 768 x 689
+			BodyTransport transInstance;
 			for (int i = 0; i < nBodyCount; ++i)
             {
                 IBody* pBody = ppBodies[i];
@@ -396,12 +397,9 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 							PointF lean;
 							hr = pBody->get_Lean(&lean);
 							// Start transport
-							BodyTransport transInstance;
+							
 							transInstance.AddBody(joints, _countof(joints));
-							transInstance.AddBody(presave_joints[i], _countof(presave_joints[i]));
-							std::string jsonstr = transInstance.toJson();
-							if(jsonstr.length() > 0)
-								sockettransfer->transfer(jsonstr);
+
 
 							DrawBody(presave_joints[i], presave_jointPoints[i]);
 							// DY }
@@ -413,7 +411,9 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
                     }
                 }
             }
-
+			std::string jsonstr = transInstance.toJson();
+			if (jsonstr.length() > 0)
+				sockettransfer->transfer(jsonstr);
             hr = m_pRenderTarget->EndDraw();
 
             // Device lost, need to recreate the render target
