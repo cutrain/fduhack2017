@@ -154,3 +154,51 @@ private:
 	// DY }
 };
 
+
+class BodyTransport
+{
+#define TEXT_LIMIT 256
+private:
+	int bodyCount;
+	float bodyPoints[BODY_COUNT][JointType_Count][3];
+	int tLen;
+	char text[TEXT_LIMIT];
+public:
+	BodyTransport()
+	{
+		bodyCount = 0;
+		tLen = 0;
+		memset(text, 0, sizeof(text));
+	}
+	bool AddBody(Joint* joints, int cnt)
+	{
+		if (bodyCount >= BODY_COUNT)
+			return false;
+		for (int i = 0; i < cnt; ++i)
+		{
+			bodyPoints[bodyCount][i][0] = joints[i].Position.X;
+			bodyPoints[bodyCount][i][1] = joints[i].Position.Y;
+			bodyPoints[bodyCount][i][2] = joints[i].Position.Z;
+		}
+		for (int i = cnt; i < JointType_Count; ++i)
+		{
+			bodyPoints[bodyCount][i][0] = -1;
+			bodyPoints[bodyCount][i][1] = -1;
+			bodyPoints[bodyCount][i][2] = -1;
+		}
+		++bodyCount;
+		return true;
+	}
+	bool AddText(char *str)
+	{
+		int len = strlen(str);
+		int tLen = strlen(text);
+		if (tLen + len > TEXT_LIMIT)
+			return false;
+		for (int i = 0; i < len; ++i)
+			text[tLen + i] = str[i];
+		tLen += len;
+		return true;
+	}
+#undef TEXT_LIMIT
+};
