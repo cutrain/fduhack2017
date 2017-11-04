@@ -25,6 +25,7 @@
   </style>
   <script type="text/javascript" charset="utf-8">
   $(document).ready(function() {
+    var startTime = new Date();
 
     var skeletonData = [
       [5, 20],
@@ -56,8 +57,8 @@
       .attr("r", 5);
 
     heatmapData = [];
-    for (var i = 0; i < 5; i++) {
-      for (var j = 0; j < 5; j++) {
+    for (var i = 0; i < 15; i++) {
+      for (var j = 0; j < 15; j++) {
         heatmapData.push([i, j, Math.random() * 10]);
       }
 
@@ -148,20 +149,24 @@
         });
     };
     socket.on('my_response', function(msg) {
-      //      $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
+        var now = new Date();
+        $("#lastingMin").text(Math.floor((now - startTime) / 60000));
+        $("#lastingSec").text(Math.floor((now - startTime) % 60000 / 1000));
+
       skeletonData = [];
       for (var i = 0; i < 5; i++) {
         skeletonData.push([Math.random() * 100, Math.random() * 100]);
       }
       updateSkeleton(skeletonData);
       heatmapData = [];
-      for (var i = 0; i < 5; i++) {
-        for (var j = 0; j < 5; j++) {
+      for (var i = 0; i < 15; i++) {
+        for (var j = 0; j < 15; j++) {
           heatmapData.push([i, j, Math.random() * 10]);
         }
 
       }
       updateHeatmap(heatmapData);
+
     });
 
     // Interval function that tests message latency by sending a "ping"
@@ -205,13 +210,8 @@
       <div class="row content" style="height: 100%;">
         <div class="col-sm-4 well" id="statPanel" style="height: 100%;">
           <h1>Skeleton Monitor</h1>
-          <!--<p>Async mode is: <b>{{ async_mode }}</b></p>-->
           <p>Average ping/pong latency: <b><span id="ping-pong"></span>ms</b></p>
-          <!--<h2>Send:</h2>-->
-          <!--<form id="emit" method="POST" action='#'>-->
-          <!--<input type="text" name="emit_data" id="emit_data" placeholder="Message">-->
-          <!--<input type="submit" value="Echo">-->
-          <!--</form>-->
+            <p>Monitor Time: <b><span id="lastingMin"></span> min <span id="lastingSec"></span> s </b></p>
           <h1>Your Custom Sitting</h1>
           <div id="heatmap" style="height: 80%; width: 100%"></div>
         </div>
