@@ -166,7 +166,7 @@ def background_thread():
             heatmap_data = np.array(position_data)
         else:
             try:
-                heatmap_data = (heatmap_data * count + np.array(position_data)) / count;
+                heatmap_data = (heatmap_data * (count - 1) + np.array(position_data)) / count;
             except:
                 pass
 

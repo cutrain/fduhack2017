@@ -27,9 +27,8 @@
   </style>
   <script type="text/javascript">
   $(document).ready(function() {
-      today = new Date();
-      $("#date").text(today.toLocaleString());
-
+      myaudio = new Audio("/static/audio/ai.mp3");
+      myaudio.play();
     jointTypeDict = {
       "SpineBase": 0,
       "SpineMid": 1,
@@ -133,9 +132,15 @@
       .attr("width", "100%")
       .attr("height", "100%");
 
+    var heatmapSvg = d3.select("#heatmap")
+      .append("svg")
+      .attr("id", "heatmapSvg")
+      .attr("preserveAspectRatio", "xMidYMid")
+      .attr("width", "100%")
+      .attr("height", "100%");
+
     svgWidth = 400;
     svgHeight = 300;
-
     var scalex = d3.scale.linear().range([0, svgWidth]).domain([-1, 1]);
     var scaley = d3.scale.linear().range([0, svgHeight]).domain([1, -1]);
     var lineFunction = d3.svg.line()
@@ -163,40 +168,27 @@
       .attr("stroke", "black")
       .attr("stroke-width", 2);
 
-    heatmapData = [];
-    for (var i = 0; i < 50; i++) {
-      for (var j = 0; j < 50; j++) {
-        heatmapData.push([i, j, 0]);
-      }
 
-    }
-    gridWidth = 5;
-    gridHeight = 5;
-
-    var heatmapSvg = d3.select("#heatmap")
-      .append("svg")
-      .attr("id", "heatmapSvg")
-      .attr("preserveAspectRatio", "xMidYMid")
-      .attr("width", "100%")
-      .attr("height", "100%");
-
-    heatmapSvg.selectAll("rect")
-      .data(heatmapData)
+    heatmapSvg.selectAll("circle")
+      .data(skeletonData)
       .enter()
-      .append("rect")
-      .attr("x", function(d) {
-        return d[0] * gridWidth;
+      .append("circle")
+      .attr("class", "skeletonPoint")
+      .attr("cx", function(d) {
+        return scalex(d[0]);
       })
-      .attr("y", function(d) {
-        return d[1] * gridHeight;
+      .attr("cy", function(d) {
+        return scaley(d[1]);
       })
-      .attr("width", gridWidth)
-      .attr("height", gridHeight)
-      .attr("class", "rect")
-      .style("fill", "black")
-      .style("opacity", function(d) {
-        return 0.3;
-      });
+      .attr("r", 5);
+
+    lineData = generateLine(skeletonData);
+    heatmapSvg.selectAll("Path").data(lineData).enter()
+      .append("path")
+      .attr("d", lineFunction)
+      .attr("stroke", "black")
+      .attr("stroke-width", 2);
+
 
     // Use a "/test" namespace.
     // An application can open a connection on multiple namespaces, and
@@ -223,7 +215,7 @@
     // section of the page.
 
     updateSkeleton = function(skeletonData) {
-      skeletonSvg.selectAll("circle")
+      svgElement.selectAll("circle")
         .data(skeletonData)
         .transition()
         .attr("cx", function(d) {
@@ -235,7 +227,7 @@
         .attr("r", 5);
 
       lineData = generateLine(skeletonData);
-      skeletonSvg.selectAll("Path")
+      svgElement.selectAll("Path")
         .data(lineData)
         .transition()
         .attr("d", lineFunction)
@@ -272,14 +264,52 @@
       if (msg.data.length < 5) { return; }
       skeletonData = eval("(" + msg.data + ")");
       skeletonData = skeletonData[0];
-      updateSkeleton(skeletonData);
+      console.log(skeletonData)
+
+      // update skeleton
+      skeletonSvg.selectAll("circle")
+        .data(skeletonData)
+        .transition()
+        .attr("cx", function(d) {
+          return scalex(d[0]);
+        })
+        .attr("cy", function(d) {
+          return scaley(d[1]);
+        })
+        .attr("r", 5);
+
+      lineData = generateLine(skeletonData);
+      skeletonSvg.selectAll("Path")
+        .data(lineData)
+        .transition()
+        .attr("d", lineFunction)
+        .attr("stroke", "black")
+        .attr("stroke-width", 2);
+
+
       if(parseInt(msg.count)%10 == 0){
           heatmapData = eval("(" + msg.heatmap + ")");
           console.log(heatmapData);
-          updateHeatmap(heatmapData);
+
+          heatmapSvg.selectAll("circle")
+        .data(skeletonData)
+        .transition()
+        .attr("cx", function(d) {
+          return scalex(d[0]);
+        })
+        .attr("cy", function(d) {
+          return scaley(d[1]);
+        })
+        .attr("r", 5);
+
+      lineData = generateLine(skeletonData);
+      heatmapSvg.selectAll("Path")
+        .data(lineData)
+        .transition()
+        .attr("d", lineFunction)
+        .attr("stroke", "black")
+        .attr("stroke-width", 2);
       }
-
-
     });
 
     // Interval function that tests message latency by sending a "ping"
