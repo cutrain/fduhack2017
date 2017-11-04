@@ -110,7 +110,6 @@ class vector(object):
             ans.append(self.v[i] * v[i])
         return veclen(ans) / veclen(v[i])
 
-
 def check_body(bp):
     b = body
     top = bp[b.Head]
@@ -125,6 +124,8 @@ def check_body(bp):
     shoulder = vector(bp[b.shoulder], bp[b.ShoulderLeft])
     angle = shoulder.angle(bp[b.ShoulderRight])
     print badness
+    if badness > 0.3 and angle < 150:
+        return 3
     if badness > 0.3 or angle < 150:
         return 2
     if badness > 0.1:
@@ -161,6 +162,7 @@ def background_thread():
         count += 1
         position_data = json.loads(s);
         position_data = position_data[0]
+        state = check_body(position_data)
 
         if heatmap_data == []:
             heatmap_data = np.array(position_data)
@@ -182,10 +184,8 @@ def background_thread():
                     pass
 
 
-        sitting = None
-
         socketio.emit('my_response',
-                      {'data': s, 'count': count, 'heatmap': json.dumps(heatmap_json), 'sitting': sitting},
+                      {'data': s, 'count': count, 'heatmap': json.dumps(heatmap_json), 'sitting': state},
                       namespace='/test')
 
 
