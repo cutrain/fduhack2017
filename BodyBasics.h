@@ -7,6 +7,8 @@
 #pragma once
 
 #include "resource.h"
+#include <sstream>
+#include <vcclr.h>
 
 class CBodyBasics
 {
@@ -165,6 +167,36 @@ public:
 	{
 		bodyCount = 0;
 	}
+
+	std::string toJson() {
+		using namespace std;
+		ostringstream ss;
+		if (bodyCount == 0) return "";
+		ss << "[";
+		for (int bodyi = 0; bodyi < bodyCount; bodyi++) {
+			if (bodyi) ss << ",";
+			ss << "[";
+			for (int jti = 0; jti < JointType_Count; jti++) {
+				if (jti) ss << ",";
+				if (bodyPoints[bodyi][jti][2] < 0) {
+					ss << "undefined";
+				}else {
+					ss << "[";
+					for (int dimi = 0; dimi < 3; dimi++) {
+						if (dimi) ss << ",";
+						ss << bodyPoints[bodyi][jti][dimi];
+					}
+					ss << "]";
+				}
+			}
+			ss << "]";
+		}
+		ss << "];";
+		// spliter
+		ss << "*";
+		return ss.str();
+	};
+
 	bool AddBody(Joint* joints, int cnt)
 	{
 		if (bodyCount >= BODY_COUNT)

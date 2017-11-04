@@ -8,6 +8,7 @@
 #include <strsafe.h>
 #include "resource.h"
 #include "BodyBasics.h"
+#include "SocketTransfer.h"
 
 static const float c_JointThickness = 3.0f;
 static const float c_TrackedBoneThickness = 6.0f;
@@ -22,6 +23,10 @@ static const float c_HandSize = 30.0f;
 /// <param name="lpCmdLine">command line arguments</param>
 /// <param name="nCmdShow">whether to display minimized, maximized, or normally</param>
 /// <returns>status</returns>
+
+gcroot<SocketTransfer^> sockettransfer;
+
+
 int APIENTRY wWinMain(    
 	_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -31,7 +36,8 @@ int APIENTRY wWinMain(
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
-
+	sockettransfer = gcnew SocketTransfer(12345);
+	sockettransfer->startListening();
     CBodyBasics application;
     application.Run(hInstance, nShowCmd);
 }
@@ -99,6 +105,7 @@ CBodyBasics::~CBodyBasics()
 /// <param name="nCmdShow">whether to display minimized, maximized, or normally</param>
 int CBodyBasics::Run(HINSTANCE hInstance, int nCmdShow)
 {
+
     MSG       msg = {0};
     WNDCLASS  wc;
 
@@ -392,6 +399,9 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 							BodyTransport transInstance;
 							transInstance.AddBody(joints, _countof(joints));
 							transInstance.AddBody(presave_joints[i], _countof(presave_joints[i]));
+							std::string jsonstr = transInstance.toJson();
+							if(jsonstr.length() > 0)
+								sockettransfer->transfer(jsonstr);
 
 							DrawBody(presave_joints[i], presave_jointPoints[i]);
 							// DY }
