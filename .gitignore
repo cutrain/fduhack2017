@@ -295,6 +295,7 @@ WebVis/.idea/
 temp.wav
 venv/
 dump.rdb
+test.py
 
 #vcxproj
 *.vcxproj
