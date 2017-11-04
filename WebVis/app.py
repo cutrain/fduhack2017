@@ -154,7 +154,6 @@ def background_thread():
     for i in range(50):
         for j in range(50):
             heatmap_json.append([i, j, 0])
-    client = SocketReceiver();
     while True:
         global database
         s = database.get('pic')
