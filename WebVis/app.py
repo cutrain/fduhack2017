@@ -3,6 +3,7 @@ from threading import Lock
 from flask import Flask, render_template, session, request, url_for
 from flask_socketio import SocketIO, emit
 from enum import Enum
+import math
 import time
 import socket
 import json
@@ -86,7 +87,6 @@ class vector(object):
 
     @staticmethod
     def veclen(vec):
-        import math
         ans = math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2])
         if -1e-9 < ans < 1e-9:
             ans = 1e-7
@@ -96,7 +96,6 @@ class vector(object):
         v = []
         for i in range(3):
             v.append(p[i]-self.p[i])
-        import math
         return math.acos(
             (v[0]*self.v[0] + v[1] * self.v[1] + v[2] * self.v[2]) /
             (self.veclen(v) * self.veclen(self.v))
@@ -106,10 +105,9 @@ class vector(object):
         v = []
         for i in range(3):
             v.append(p[i]-self.p[i])
-        ans = []
-        for i in range(3):
-            ans.append(self.v[i] * v[i])
-        return self.veclen(ans) / self.veclen(v)
+        ang = self.angle(p)
+        ans = self.veclen(self.v) * math.sin(ang * 3.14159 / 180.)
+        return ans
 
 def check_body(bp):
     b = body()
