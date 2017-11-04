@@ -6,6 +6,7 @@ import time
 import socket
 import json
 import redis
+import numpy as np
 
 jointTypeDict = [
         "SpineBase",
@@ -75,10 +76,14 @@ class SocketReceiver:
           chunk.append(ichar)
 
 
-
 def background_thread():
     """Example of how to send server generated events to clients."""
     count = 0
+    heatmap_data = []
+    heatmap_json = []
+    for i in range(50):
+        for j in range(50):
+            heatmap_json.append([i, j, 0])
     client = SocketReceiver();
     while True:
         global database
@@ -86,14 +91,34 @@ def background_thread():
         socketio.sleep(0.1)
         count += 1
         position_data = json.loads(s);
-        print position_data
-        print type(position_data)
-
         position_data = position_data[0]
 
 
+        if heatmap_data == []:
+            heatmap_data = np.array(position_data)
+        else:
+            try:
+                heatmap_data = (heatmap_data * count + np.array(position_data)) / count;
+            except:
+                pass
+
+        if count % 10 == 0:
+            heatmap_json = []
+            for i in range(50):
+                for j in range(50):
+                    heatmap_json.append([i, j, 0])
+            for point in heatmap_data:
+                try:
+                    heatmap_json[int((point[0] + 5) * 5) * 50 + int((point[1] + 5) * 5)][2] = 0.7
+                except:
+                    pass
+
+
+        sitting = None
+
+
         socketio.emit('my_response',
-                      {'data': s, 'count': count, 'heatmap': heatmap, 'sitting': sitting},
+                      {'data': s, 'count': count, 'heatmap': json.dumps(heatmap_json), 'sitting': sitting},
                       namespace='/test')
 
 

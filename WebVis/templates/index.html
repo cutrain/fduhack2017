@@ -12,7 +12,6 @@
   <script type="text/javascript" src="/static/bootstrap.min.js"></script>
   <script type="text/javascript" src="/static/semantic.js"></script>
   <script type="text/javascript" src="/static/d3.v3.min.js"></script>
-  <script type="text/javascript" src="/static/test.js"></script>
   <style>
   .main {
     width: 100%;
@@ -56,7 +55,7 @@
       "ThumbRight": 24
     };
     generateLine = function(skeletonData) {
-      var pointPairs = []
+      var pointPairs = [];
 
       function pushBone(joint1, joint2) {
         pointPairs.push([{ "x": skeletonData[jointTypeDict[joint1]][0], "y": skeletonData[jointTypeDict[joint1]][1] },
@@ -162,14 +161,14 @@
       .attr("stroke-width", 2);
 
     heatmapData = [];
-    for (var i = 0; i < 15; i++) {
-      for (var j = 0; j < 15; j++) {
-        heatmapData.push([i, j, Math.random() * 10]);
+    for (var i = 0; i < 50; i++) {
+      for (var j = 0; j < 50; j++) {
+        heatmapData.push([i, j, 0]);
       }
 
     }
-    gridWidth = 10;
-    gridHeight = 10;
+    gridWidth = 5;
+    gridHeight = 5;
 
     var heatmapSvg = d3.select("#heatmap")
       .append("svg")
@@ -190,10 +189,10 @@
       })
       .attr("width", gridWidth)
       .attr("height", gridHeight)
-      .attr("class", "heatmapRect")
+      .attr("class", "rect")
       .style("fill", "black")
       .style("opacity", function(d) {
-        return d[2] / 10;
+        return 0.3;
       });
 
     // Use a "/test" namespace.
@@ -255,33 +254,28 @@
         })
         .attr("width", gridWidth)
         .attr("height", gridHeight)
-        .attr("class", "heatmapRect")
+        .attr("class", "rect")
         .style("fill", "black")
         .style("opacity", function(d) {
-          return d[2] / 10;
+          return d[2];
         });
+      console.log('updateheamtap')
     };
+
     socket.on('my_response', function(msg) {
       var now = new Date();
       $("#lastingMin").text(Math.floor((now - startTime) / 60000));
       $("#lastingSec").text(Math.floor((now - startTime) % 60000 / 1000));
       if (msg.data.length < 5) { return; }
-      console.log(msg.data)
       skeletonData = eval("(" + msg.data + ")");
       skeletonData = skeletonData[0];
-      console.log("***************************")
-      //      for (var i = 0; i < 5; i++) {
-      //        skeletonData.push([Math.random() * 100, Math.random() * 100]);
-      //      }
       updateSkeleton(skeletonData);
-      heatmapData = [];
-      for (var i = 0; i < 15; i++) {
-        for (var j = 0; j < 15; j++) {
-          heatmapData.push([i, j, Math.random() * 10]);
-        }
-
+      if(parseInt(msg.count)%10 == 0){
+          heatmapData = eval("(" + msg.heatmap + ")");
+          console.log(heatmapData);
+          updateHeatmap(heatmapData);
       }
-      updateHeatmap(heatmapData);
+
 
     });
 
