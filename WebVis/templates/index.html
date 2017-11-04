@@ -29,6 +29,10 @@
   $(document).ready(function() {
       myaudio = new Audio("/static/audio/ai.mp3");
       myaudio.play();
+    var today = new Date();
+    $("#date").text(today.toLocaleString());
+    var sittingState;
+    var skeletonColor = ["green", "orange", "orange", "red"];
     jointTypeDict = {
       "SpineBase": 0,
       "SpineMid": 1,
@@ -159,13 +163,18 @@
       .attr("cy", function(d) {
         return scaley(d[1]);
       })
-      .attr("r", 5);
+      .attr("r", 5)
+      .attr("fill", function(d) {
+        return skeletonColor[sittingState];
+      });
 
     lineData = generateLine(skeletonData);
     skeletonSvg.selectAll("Path").data(lineData).enter()
       .append("path")
       .attr("d", lineFunction)
-      .attr("stroke", "black")
+      .attr("stroke", function(d) {
+        return skeletonColor[sittingState];
+      })
       .attr("stroke-width", 2);
 
 
@@ -214,49 +223,6 @@
     // to the client. The data is then displayed in the "Received"
     // section of the page.
 
-    updateSkeleton = function(skeletonData) {
-      svgElement.selectAll("circle")
-        .data(skeletonData)
-        .transition()
-        .attr("cx", function(d) {
-          return scalex(d[0]);
-        })
-        .attr("cy", function(d) {
-          return scaley(d[1]);
-        })
-        .attr("r", 5);
-
-      lineData = generateLine(skeletonData);
-      svgElement.selectAll("Path")
-        .data(lineData)
-        .transition()
-        .attr("d", lineFunction)
-        .attr("stroke", "black")
-        .attr("stroke-width", 2);
-    };
-
-    updateHeatmap = function(heatmapData) {
-      heatmapSvg.selectAll("rect")
-        .data(heatmapData)
-        .transition()
-        .delay(0)
-        .duration(10)
-        .attr("x", function(d) {
-          return d[0] * gridWidth;
-        })
-        .attr("y", function(d) {
-          return d[1] * gridHeight;
-        })
-        .attr("width", gridWidth)
-        .attr("height", gridHeight)
-        .attr("class", "rect")
-        .style("fill", "black")
-        .style("opacity", function(d) {
-          return d[2];
-        });
-      console.log('updateheamtap')
-    };
-
     socket.on('my_response', function(msg) {
       var now = new Date();
       $("#lastingMin").text(Math.floor((now - startTime) / 60000));
@@ -292,7 +258,7 @@
           console.log(heatmapData);
 
           heatmapSvg.selectAll("circle")
-        .data(skeletonData)
+        .data(heatmapData)
         .transition()
         .attr("cx", function(d) {
           return scalex(d[0]);
@@ -302,7 +268,7 @@
         })
         .attr("r", 5);
 
-      lineData = generateLine(skeletonData);
+      lineData = generateLine(heatmapData);
       heatmapSvg.selectAll("Path")
         .data(lineData)
         .transition()
@@ -356,6 +322,7 @@
           <p><i class="calendar icon"></i>今天是：<b><span id="date"></span></b></p>
           <p><i class="arrow circle down icon"></i>后台通信平均网络延迟: <b><span id="ping-pong"></span>ms</b></p>
           <p><i class="unhide icon"></i>已检测时间: <b><span id="lastingMin"></span> 分钟 <span id="lastingSec"></span> 秒 </b></p>
+          <p><i class="keyboard icon"></i>队伍成员：段宇，梁辰，胡天晓</p>
           <h1 class="ui green header">坐姿习惯反馈</h1>
           <div id="heatmap" style="height: 80%; width: 100%"></div>
         </div>

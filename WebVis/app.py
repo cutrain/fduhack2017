@@ -3,6 +3,7 @@ from threading import Lock
 from flask import Flask, render_template, session, request, url_for
 from flask_socketio import SocketIO, emit
 from enum import Enum
+import math
 import time
 import socket
 import json
@@ -49,7 +50,7 @@ thread_lock = Lock()
 
 database = redis.Redis(host='localhost', port=6379,)
 
-class body(Enum):
+class body(object):
     SpineBase = 0
     SpineMid  = 1
     Neck  = 2
@@ -86,33 +87,30 @@ class vector(object):
 
     @staticmethod
     def veclen(vec):
-        import math
-        return math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2])
+        ans = math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2])
+        if -1e-9 < ans < 1e-9:
+            ans = 1e-7
+        return ans
 
     def angle(self, p):
         v = []
         for i in range(3):
             v.append(p[i]-self.p[i])
-        import math
         return math.acos(
-            (
-                (v[0]*self.v[0] + v[1] * self.v[1] + v2 * self.v[2]) /
-                (veclen(v) * veclen(self.v))
-            ) * 180. / 3.1415926
-        )
+            (v[0]*self.v[0] + v[1] * self.v[1] + v[2] * self.v[2]) /
+            (self.veclen(v) * self.veclen(self.v))
+        ) * 180. / 3.14159
 
     def dis(self, p):
         v = []
         for i in range(3):
             v.append(p[i]-self.p[i])
-        ans = []
-        for i in range(3):
-            ans.append(self.v[i] * v[i])
-        return veclen(ans) / veclen(v[i])
-
+        ang = self.angle(p)
+        ans = self.veclen(self.v) * math.sin(ang * 3.14159 / 180.)
+        return ans
 
 def check_body(bp):
-    b = body
+    b = body()
     top = bp[b.Head]
     bottom = bp[b.SpineBase]
     line = vector(top, bottom)
@@ -122,9 +120,11 @@ def check_body(bp):
     badness += line.dis(bp[b.SpineShoulder])
     badness += line.dis(bp[b.SpineMid])
     # body shoulder
-    shoulder = vector(bp[b.shoulder], bp[b.ShoulderLeft])
+    shoulder = vector(bp[b.SpineShoulder], bp[b.ShoulderLeft])
     angle = shoulder.angle(bp[b.ShoulderRight])
-    print badness
+    print badness, '%', angle
+    if badness > 0.3 and angle < 150:
+        return 3
     if badness > 0.3 or angle < 150:
         return 2
     if badness > 0.1:
@@ -149,11 +149,10 @@ def background_thread():
     """Example of how to send server generated events to clients."""
     count = 0
     heatmap_data = []
-    heatmap_json = []
-    for i in range(50):
-        for j in range(50):
-            heatmap_json.append([i, j, 0])
-    client = SocketReceiver();
+    # heatmap_json = []
+    # for i in range(50):
+    #     for j in range(50):
+    #         heatmap_json.append([i, j, 0])
     while True:
         global database
         s = database.get('pic')
@@ -161,6 +160,8 @@ def background_thread():
         count += 1
         position_data = json.loads(s);
         position_data = position_data[0]
+        state = check_body(position_data)
+        print 'state :', state
 
         if heatmap_data == []:
             heatmap_data = np.array(position_data)
@@ -170,22 +171,20 @@ def background_thread():
             except:
                 pass
 
-        if count % 10 == 0:
-            heatmap_json = []
-            for i in range(50):
-                for j in range(50):
-                    heatmap_json.append([i, j, 0])
-            for point in heatmap_data:
-                try:
-                    heatmap_json[int((point[0] + 5) * 5) * 50 + int((point[1] + 5) * 5)][2] = 0.7
-                except:
-                    pass
+        # if count % 10 == 0:
+        #     heatmap_json = []
+        #     for i in range(50):
+        #         for j in range(50):
+        #             heatmap_json.append([i, j, 0])
+        #     for point in heatmap_data:
+        #         try:
+        #             heatmap_json[int((point[0] + 5) * 5) * 50 + int((point[1] + 5) * 5)][2] = 0.7
+        #         except:
+        #             pass
 
-
-        sitting = None
 
         socketio.emit('my_response',
-                      {'data': s, 'count': count, 'heatmap': json.dumps(heatmap_json), 'sitting': sitting},
+                      {'data': s, 'count': count, 'heatmap': str([list(x) for x in heatmap_data]), 'sitting': state},
                       namespace='/test')
 
 
