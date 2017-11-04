@@ -26,7 +26,7 @@
   <script type="text/javascript" charset="utf-8">
   $(document).ready(function() {
 
-    var dataset = [
+    var skeletonData = [
       [5, 20],
       [480, 90],
       [250, 50],
@@ -43,7 +43,7 @@
       .attr("height", "100%");
 
     skeletonSvg.selectAll("circle")
-      .data(dataset)
+      .data(skeletonData)
       .enter()
       .append("circle")
       .attr("class", "skeletonPoint")
@@ -55,6 +55,40 @@
       })
       .attr("r", 5);
 
+    heatmapData = [];
+    for (var i = 0; i < 5; i++) {
+      for (var j = 0; j < 5; j++) {
+        heatmapData.push([i, j, Math.random() * 10]);
+      }
+
+    }
+    gridWidth = 10;
+    gridHeight = 10;
+
+    var heatmapSvg = d3.select("#heatmap")
+      .append("svg")
+      .attr("id", "heatmapSvg")
+      .attr("preserveAspectRatio", "xMidYMid")
+      .attr("width", "100%")
+      .attr("height", "100%");
+
+    heatmapSvg.selectAll("rect")
+      .data(heatmapData)
+      .enter()
+      .append("rect")
+      .attr("x", function(d) {
+        return d[0] * gridWidth;
+      })
+      .attr("y", function(d) {
+        return d[1] * gridHeight;
+      })
+      .attr("width", gridWidth)
+      .attr("height", gridHeight)
+      .attr("class", "heatmapRect")
+      .style("fill", "black")
+      .style("opacity", function(d) {
+        return d[2] / 10;
+      });
 
     // Use a "/test" namespace.
     // An application can open a connection on multiple namespaces, and
@@ -79,16 +113,9 @@
     // The callback function is invoked whenever the server emits data
     // to the client. The data is then displayed in the "Received"
     // section of the page.
-    socket.on('my_response', function(msg) {
-      //      $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
-
-      dataset = [];
-      for (var i = 0; i < 5; i++) {
-        dataset.push([Math.random() * 100, Math.random() * 100]);
-      }
-
+    updateSkeleton = function(skeletonData) {
       skeletonSvg.selectAll("circle")
-        .data(dataset)
+        .data(skeletonData)
         .transition()
         .delay(0)
         .duration(10)
@@ -99,6 +126,42 @@
           return d[1];
         })
         .attr("r", 5);
+    };
+    updateHeatmap = function(heatmapData) {
+      heatmapSvg.selectAll("rect")
+        .data(heatmapData)
+        .transition()
+        .delay(0)
+        .duration(10)
+        .attr("x", function(d) {
+          return d[0] * gridWidth;
+        })
+        .attr("y", function(d) {
+          return d[1] * gridHeight;
+        })
+        .attr("width", gridWidth)
+        .attr("height", gridHeight)
+        .attr("class", "heatmapRect")
+        .style("fill", "black")
+        .style("opacity", function(d) {
+          return d[2] / 10;
+        });
+    };
+    socket.on('my_response', function(msg) {
+      //      $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
+      skeletonData = [];
+      for (var i = 0; i < 5; i++) {
+        skeletonData.push([Math.random() * 100, Math.random() * 100]);
+      }
+      updateSkeleton(skeletonData);
+      heatmapData = [];
+      for (var i = 0; i < 5; i++) {
+        for (var j = 0; j < 5; j++) {
+          heatmapData.push([i, j, Math.random() * 10]);
+        }
+
+      }
+      updateHeatmap(heatmapData);
     });
 
     // Interval function that tests message latency by sending a "ping"
@@ -142,16 +205,18 @@
       <div class="row content" style="height: 100%;">
         <div class="col-sm-4 well" id="statPanel" style="height: 100%;">
           <h1>Skeleton Monitor</h1>
-          <p>Async mode is: <b>{{ async_mode }}</b></p>
+          <!--<p>Async mode is: <b>{{ async_mode }}</b></p>-->
           <p>Average ping/pong latency: <b><span id="ping-pong"></span>ms</b></p>
-          <h2>Send:</h2>
-          <form id="emit" method="POST" action='#'>
-            <input type="text" name="emit_data" id="emit_data" placeholder="Message">
-            <input type="submit" value="Echo">
-          </form>
+          <!--<h2>Send:</h2>-->
+          <!--<form id="emit" method="POST" action='#'>-->
+          <!--<input type="text" name="emit_data" id="emit_data" placeholder="Message">-->
+          <!--<input type="submit" value="Echo">-->
+          <!--</form>-->
+          <h1>Your Custom Sitting</h1>
+          <div id="heatmap" style="height: 80%; width: 100%"></div>
         </div>
         <div class="col-sm-8 well" id="skeletonView" style="height: 100%;">
-          <h2>Receive:</h2>
+          <h1>Real-time Reflection</h1>
           <div id="skeleton" style="width: 300px; height: 300px;"></div>
           <div id="log"></div>
         </div>
