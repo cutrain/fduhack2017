@@ -14,14 +14,15 @@ class TextToSpeech(object):
         if outfile is not None:
             cmd += '--output %s ' % outfile
         cmd += '%s' % self.api
-        import subprocess
-        ret = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        retval = ret.wait()
+        import os
+        ret = os.popen(cmd).read()
         if outfile:
-            return retval
-        return ret.stdout.read()
+            return None
+        return ret
 
     def play(self, istream=None, filename=None):
+        if istream is None and filename is None:
+            return
         try:
             if filename is not None:
                 with open(filename, 'rb') as f:
@@ -36,9 +37,7 @@ class TextToSpeech(object):
             with open('temp.wav', 'wb') as f:
                 f.write(istream)
             wf = wave.open('temp.wav', 'rb')
-            print 1
             p = pyaudio.PyAudio()
-            print 2
 
             # open stream (2)
             stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
@@ -46,24 +45,19 @@ class TextToSpeech(object):
                             rate=wf.getframerate(),
                             output=True)
 
-            print 3
             data = wf.readframes(CHUNK)
-            print 4
 
             # play stream (3)
             while len(data) > 0:
                 stream.write(data)
                 data = wf.readframes(CHUNK)
 
-            print 5
             # stop stream (4)
             stream.stop_stream()
             stream.close()
 
             # close PyAudio (5)
-            print 6
             p.terminate()
-            print 'finish'
         except IOError as e:
             pass
 
