@@ -158,12 +158,12 @@ private:
 class BodyTransport
 {
 #define TEXT_LIMIT 256
-private:
+public:
 	int bodyCount;
 	float bodyPoints[BODY_COUNT][JointType_Count][3];
 	int tLen;
 	char text[TEXT_LIMIT];
-public:
+
 	BodyTransport()
 	{
 		bodyCount = 0;
