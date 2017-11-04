@@ -1,14 +1,37 @@
 import socket
+import json
 
-MSGLEN = 8;
-class mysocket:
+class SocketReceiver:
     '''demonstration class only
       - coded for clarity, not efficiency
     '''
-
-    positionDict = {
-      0 : ""
-    }
+    jointTypeDict = [
+        "SpineBase",
+        "SpineMid",
+        "Neck",
+        "Head",
+        "ShoulderLeft",
+        "ElbowLeft",
+        "WristLeft",
+        "HandLeft",
+        "ShoulderRight",
+        "ElbowRight",
+        "WristRight",
+        "HandRight",
+        "HipLeft",
+        "KneeLeft",
+        "AnkleLeft",
+        "FootLeft",
+        "HipRight",
+        "KneeRight",
+        "AnkleRight",
+        "FootRight",
+        "SpineShoulder",
+        "HandTipLeft",
+        "ThumbLeft",
+        "HandTipRight",
+        "ThumbRight"
+    ];
 
     def __init__(self, sock=None):
         if sock is None:
@@ -20,33 +43,20 @@ class mysocket:
     def connect(self, host, port):
       self.sock.connect((host, port))
 
-    def receiveChar(self):
-      chunk = self.sock.recv(min(1, 2048))
-      if chunk == '':
-        raise RuntimeError("socket connection broken")
-      return ''.join(chunk)
-
     def receiveFrame(self):
-      framechunk = []
-      jointchunk = []
-      wordchunk = []
+      chunk = []
       while 1:
         ichar = self.sock.recv(min(1, 2048))
-        if ichar == '':
+        # disconnect
+        if ichar == "":
           raise RuntimeError("socket connection broken")
-        else if ichar = ' ':
-          jointchunk.append(wordchunk);
-          wordchunk = []
-        else if ichar = '\n':
-          index = 0
-          while index < len(jointchunk):
+        elif ichar == "*":
+          oneframe = eval("".join(chunk))
+          return oneframe
+        else :
+          chunk.append(ichar)
 
-
-
-    def receiveFrame(self):
-
-
-client = mysocket();
+client = SocketReceiver();
 client.connect("127.0.0.1", 12345)
 while 1 :
-  print client.receiveChar()
+  client.receiveFrame()

@@ -32,14 +32,14 @@ int SocketTransfer::startListening() {
 	return 1;
 };
 
-int SocketTransfer::transfer(String^ data) {
+int SocketTransfer::transfer(std::string data) {
 	// Buffer for reading data
-	array<Byte>^bytes = gcnew array<Byte>(256);
+	array<Byte>^bytes = gcnew array<Byte>(2048);
 	Int32 i;
-	array<Byte>^msg = Text::Encoding::ASCII->GetBytes(data);
+	String^ datastr = gcnew String(data.c_str());
+	array<Byte>^ msg = Text::Encoding::ASCII->GetBytes(datastr);
 
 	// Send back a response.
 	stream->Write(msg, 0, msg->Length);
-	Console::WriteLine("Sent: {0}", data);
 	return 1;
 };
