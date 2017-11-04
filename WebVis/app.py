@@ -20,7 +20,7 @@ def background_thread():
     """Example of how to send server generated events to clients."""
     count = 0
     while True:
-        socketio.sleep(1)
+        socketio.sleep(0.1)
         count += 1
         timenow = str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
         socketio.emit('my_response',
