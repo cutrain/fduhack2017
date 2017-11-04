@@ -199,7 +199,7 @@ public:
 
 	bool AddBody(Joint* joints, int cnt)
 	{
-		if (bodyCount >= BODY_COUNT)
+		if (bodyCount >= BODY_COUNT || cnt == 0)
 			return false;
 		for (int i = 0; i < cnt; ++i)
 		{
@@ -209,8 +209,6 @@ public:
 		}
 		for (int i = cnt; i < JointType_Count; ++i)
 		{
-			bodyPoints[bodyCount][i][0] = -1;
-			bodyPoints[bodyCount][i][1] = -1;
 			bodyPoints[bodyCount][i][2] = -1;
 		}
 		++bodyCount;
