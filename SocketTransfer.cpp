@@ -1,4 +1,4 @@
-#include"SocketTransfer.h"
+#include "SocketTransfer.h"
 
 using namespace System;
 using namespace System::IO;
@@ -29,27 +29,17 @@ int SocketTransfer::startListening() {
 
 	// Get a stream Object* for reading and writing
 	stream = client->GetStream();
-	
+	return 1;
 };
 
-int SocketTransfer::transfer() {
+int SocketTransfer::transfer(String^ data) {
 	// Buffer for reading data
 	array<Byte>^bytes = gcnew array<Byte>(256);
 	Int32 i;
-	// Loop to receive all the data sent by the client.
-	while (i = stream->Read(bytes, 0, bytes->Length))
-	{
+	array<Byte>^msg = Text::Encoding::ASCII->GetBytes(data);
 
-		// Translate data bytes to a ASCII String*.
-		String^ data = Text::Encoding::ASCII->GetString(bytes, 0, i);
-		Console::WriteLine("Received: {0}", data);
-
-		// Process the data sent by the client.
-		data = data->ToUpper();
-		array<Byte>^msg = Text::Encoding::ASCII->GetBytes(data);
-
-		// Send back a response.
-		stream->Write(msg, 0, msg->Length);
-		Console::WriteLine("Sent: {0}", data);
-	}
+	// Send back a response.
+	stream->Write(msg, 0, msg->Length);
+	Console::WriteLine("Sent: {0}", data);
+	return 1;
 };

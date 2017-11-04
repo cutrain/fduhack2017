@@ -292,3 +292,6 @@ WebVis/.idea/
 # dy
 *.swp
 3dposition
+
+#vcxproj
+*.vcxproj
