@@ -5,13 +5,16 @@
   <title>Skeleton Monitor</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-  <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
-  <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <script src="https://d3js.org/d3.v3.min.js"></script>
-    <style>
-        .main {
+  <link href="/static/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/semantic.css" rel="stylesheet">
+  <script type="text/javascript" src="/static/jquery-3.1.1.min.js"></script>
+  <script type="text/javascript" src="/static/socket.io.min.js"></script>
+  <script type="text/javascript" src="/static/bootstrap.min.js"></script>
+  <script type="text/javascript" src="/static/semantic.js"></script>
+  <script type="text/javascript" src="/static/d3.v3.min.js"></script>
+  <script type="text/javascript" src="/static/test.js"></script>
+  <style>
+  .main {
     width: 100%;
     position: absolute;
     top: 0px;
@@ -21,72 +24,75 @@
   body {
     font-family: Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif;
   }
-    </style>
-<script type="text/javascript">
+
+  </style>
+  <script type="text/javascript">
   $(document).ready(function() {
-      jointTypeDict = {
-        "SpineBase" : 0,
-        "SpineMid" : 1,
-        "Neck" : 2,
-        "Head" : 3,
-        "ShoulderLeft" : 4,
-        "ElbowLeft" : 5,
-        "WristLeft" : 6,
-        "HandLeft" : 7,
-        "ShoulderRight" : 8,
-        "ElbowRight" : 9,
-        "WristRight" : 10,
-        "HandRight" : 11,
-        "HipLeft" : 12,
-        "KneeLeft" : 13,
-        "AnkleLeft" : 14,
-        "FootLeft" : 15,
-        "HipRight" : 16,
-        "KneeRight" : 17,
-        "AnkleRight" : 18,
-        "FootRight" : 19,
-        "SpineShoulder" : 20,
-        "HandTipLeft" : 21,
-        "ThumbLeft" : 22,
-        "HandTipRight" : 23,
-        "ThumbRight" : 24
+    jointTypeDict = {
+      "SpineBase": 0,
+      "SpineMid": 1,
+      "Neck": 2,
+      "Head": 3,
+      "ShoulderLeft": 4,
+      "ElbowLeft": 5,
+      "WristLeft": 6,
+      "HandLeft": 7,
+      "ShoulderRight": 8,
+      "ElbowRight": 9,
+      "WristRight": 10,
+      "HandRight": 11,
+      "HipLeft": 12,
+      "KneeLeft": 13,
+      "AnkleLeft": 14,
+      "FootLeft": 15,
+      "HipRight": 16,
+      "KneeRight": 17,
+      "AnkleRight": 18,
+      "FootRight": 19,
+      "SpineShoulder": 20,
+      "HandTipLeft": 21,
+      "ThumbLeft": 22,
+      "HandTipRight": 23,
+      "ThumbRight": 24
     };
-      generateLine = function(skeletonData){
-        var pointPairs = []
-        function pushBone(joint1, joint2){
-            pointPairs.push([{"x": skeletonData[jointTypeDict[joint1]][0], "y": skeletonData[jointTypeDict[joint1]][1]},
-                        {"x": skeletonData[jointTypeDict[joint2]][0], "y":skeletonData[jointTypeDict[joint2]][1]}]);
-        }
-        //body
-        pushBone("Head", "Neck");
-        pushBone("Neck", "SpineShoulder");
-        pushBone("SpineShoulder", "SpineMid");
-        pushBone("SpineMid", "SpineBase");
-        pushBone("SpineShoulder", "ShoulderRight");
-        pushBone("SpineShoulder", "ShoulderLeft");
-        pushBone("SpineBase", "HipRight");
-        pushBone("SpineBase", "HipLeft");
-        // Right Arm
-        pushBone("ShoulderRight", "ElbowRight");
-        pushBone("ElbowRight", "WristRight");
-        pushBone("WristRight", "HandRight");
-        pushBone("HandRight", "HandTipRight");
-        pushBone("WristRight", "ThumbRight");
-        // Left Arm
-        pushBone("ShoulderLeft", "ElbowLeft");
-        pushBone("ElbowLeft", "WristLeft");
-        pushBone("WristLeft", "HandLeft");
-        pushBone("HandLeft", "HandTipLeft");
-        pushBone("WristLeft", "ThumbLeft");
-        // Right Leg
-        pushBone("HipRight", "KneeRight");
-        pushBone("KneeRight", "AnkleRight");
-        pushBone("AnkleRight", "FootRight");
-        // Left Leg
-        pushBone("HipLeft", "KneeLeft");
-        pushBone("KneeLeft", "AnkleLeft");
-        pushBone("AnkleLeft", "FootLeft");
-        return pointPairs;
+    generateLine = function(skeletonData) {
+      var pointPairs = []
+
+      function pushBone(joint1, joint2) {
+        pointPairs.push([{ "x": skeletonData[jointTypeDict[joint1]][0], "y": skeletonData[jointTypeDict[joint1]][1] },
+          { "x": skeletonData[jointTypeDict[joint2]][0], "y": skeletonData[jointTypeDict[joint2]][1] }
+        ]);
+      }
+      //body
+      pushBone("Head", "Neck");
+      pushBone("Neck", "SpineShoulder");
+      pushBone("SpineShoulder", "SpineMid");
+      pushBone("SpineMid", "SpineBase");
+      pushBone("SpineShoulder", "ShoulderRight");
+      pushBone("SpineShoulder", "ShoulderLeft");
+      pushBone("SpineBase", "HipRight");
+      pushBone("SpineBase", "HipLeft");
+      // Right Arm
+      pushBone("ShoulderRight", "ElbowRight");
+      pushBone("ElbowRight", "WristRight");
+      pushBone("WristRight", "HandRight");
+      pushBone("HandRight", "HandTipRight");
+      pushBone("WristRight", "ThumbRight");
+      // Left Arm
+      pushBone("ShoulderLeft", "ElbowLeft");
+      pushBone("ElbowLeft", "WristLeft");
+      pushBone("WristLeft", "HandLeft");
+      pushBone("HandLeft", "HandTipLeft");
+      pushBone("WristLeft", "ThumbLeft");
+      // Right Leg
+      pushBone("HipRight", "KneeRight");
+      pushBone("KneeRight", "AnkleRight");
+      pushBone("AnkleRight", "FootRight");
+      // Left Leg
+      pushBone("HipLeft", "KneeLeft");
+      pushBone("KneeLeft", "AnkleLeft");
+      pushBone("AnkleLeft", "FootLeft");
+      return pointPairs;
     };
     var startTime = new Date();
 
@@ -95,19 +101,23 @@
       [480, 90],
       [250, 50],
       [100, 33],
-      [330, 95],[5, 20],
+      [330, 95],
+      [5, 20],
       [480, 90],
       [250, 50],
       [100, 33],
-      [330, 95],[5, 20],
+      [330, 95],
+      [5, 20],
       [480, 90],
       [250, 50],
       [100, 33],
-      [330, 95],[5, 20],
+      [330, 95],
+      [5, 20],
       [480, 90],
       [250, 50],
       [100, 33],
-      [330, 95],[5, 20],
+      [330, 95],
+      [5, 20],
       [480, 90],
       [250, 50],
       [100, 33],
@@ -127,9 +137,9 @@
     var scalex = d3.scale.linear().range([0, svgWidth]).domain([-1, 1]);
     var scaley = d3.scale.linear().range([0, svgHeight]).domain([1, -1]);
     var lineFunction = d3.svg.line()
-                          .x(function(d) { return scalex(d.x); })
-                          .y(function(d) { return scaley(d.y); })
-                          .interpolate("linear");
+      .x(function(d) { return scalex(d.x); })
+      .y(function(d) { return scaley(d.y); })
+      .interpolate("linear");
 
     skeletonSvg.selectAll("circle")
       .data(skeletonData)
@@ -146,10 +156,10 @@
 
     lineData = generateLine(skeletonData);
     skeletonSvg.selectAll("Path").data(lineData).enter()
-          .append("path")
-          .attr("d", lineFunction)
-          .attr("stroke", "black")
-          .attr("stroke-width", 2);
+      .append("path")
+      .attr("d", lineFunction)
+      .attr("stroke", "black")
+      .attr("stroke-width", 2);
 
     heatmapData = [];
     for (var i = 0; i < 15; i++) {
@@ -224,11 +234,11 @@
 
       lineData = generateLine(skeletonData);
       skeletonSvg.selectAll("Path")
-          .data(lineData)
-          .transition()
-          .attr("d", lineFunction)
-          .attr("stroke", "black")
-          .attr("stroke-width", 2);
+        .data(lineData)
+        .transition()
+        .attr("d", lineFunction)
+        .attr("stroke", "black")
+        .attr("stroke-width", 2);
     };
 
     updateHeatmap = function(heatmapData) {
@@ -255,14 +265,14 @@
       var now = new Date();
       $("#lastingMin").text(Math.floor((now - startTime) / 60000));
       $("#lastingSec").text(Math.floor((now - startTime) % 60000 / 1000));
-      if (msg.data.length < 5) {return ;}
+      if (msg.data.length < 5) { return; }
       console.log(msg.data)
-      skeletonData = eval ("(" + msg.data + ")");
-        skeletonData = skeletonData[0];
-        console.log("***************************")
-//      for (var i = 0; i < 5; i++) {
-//        skeletonData.push([Math.random() * 100, Math.random() * 100]);
-//      }
+      skeletonData = eval("(" + msg.data + ")");
+      skeletonData = skeletonData[0];
+      console.log("***************************")
+      //      for (var i = 0; i < 5; i++) {
+      //        skeletonData.push([Math.random() * 100, Math.random() * 100]);
+      //      }
       updateSkeleton(skeletonData);
       heatmapData = [];
       for (var i = 0; i < 15; i++) {
