@@ -87,7 +87,10 @@ class vector(object):
     @staticmethod
     def veclen(vec):
         import math
-        return math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2])
+        ans = math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2])
+        if -1e-9 < ans < 1e-9:
+            ans = 1e-7
+        return ans
 
     def angle(self, p):
         v = []
@@ -95,11 +98,9 @@ class vector(object):
             v.append(p[i]-self.p[i])
         import math
         return math.acos(
-            (
-                (v[0]*self.v[0] + v[1] * self.v[1] + v[2] * self.v[2]) /
-                (self.veclen(v) * self.veclen(self.v))
-            )
-        )
+            (v[0]*self.v[0] + v[1] * self.v[1] + v[2] * self.v[2]) /
+            (self.veclen(v) * self.veclen(self.v))
+        ) * 180. / 3.14159
 
     def dis(self, p):
         v = []
@@ -123,7 +124,7 @@ def check_body(bp):
     # body shoulder
     shoulder = vector(bp[b.SpineShoulder], bp[b.ShoulderLeft])
     angle = shoulder.angle(bp[b.ShoulderRight])
-    print badness
+    print badness, '%', angle
     if badness > 0.3 and angle < 150:
         return 3
     if badness > 0.3 or angle < 150:
@@ -162,6 +163,7 @@ def background_thread():
         position_data = json.loads(s);
         position_data = position_data[0]
         state = check_body(position_data)
+        print 'state :', state
 
         if heatmap_data == []:
             heatmap_data = np.array(position_data)
