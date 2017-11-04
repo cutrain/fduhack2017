@@ -388,9 +388,14 @@ void CBodyBasics::ProcessBody(INT64 nTime, int nBodyCount, IBody** ppBodies)
 							}
 							PointF lean;
 							hr = pBody->get_Lean(&lean);
-							// DY }
+							// Start transport
+							BodyTransport transInstance;
+							transInstance.AddBody(joints, _countof(joints));
+							transInstance.AddBody(presave_joints[i], _countof(presave_joints[i]));
 
 							DrawBody(presave_joints[i], presave_jointPoints[i]);
+							// DY }
+
 
                             DrawHand(leftHandState, jointPoints[JointType_HandLeft]);
                             DrawHand(rightHandState, jointPoints[JointType_HandRight]);
@@ -544,7 +549,9 @@ D2D1_POINT_2F CBodyBasics::BodyToScreen(const CameraSpacePoint& bodyPoint, int w
 
     float screenPointX = static_cast<float>(depthPoint.X * width) / cDepthWidth;
     float screenPointY = static_cast<float>(depthPoint.Y * height) / cDepthHeight;
-
+	FILE * fout = fopen("3dposition", "a");
+	fprintf(fout, "%f %f %f\n%f %f\n", bodyPoint.X, bodyPoint.Y, bodyPoint.Z, screenPointX, screenPointY);
+	fclose(fout);
     return D2D1::Point2F(screenPointX, screenPointY);
 }
 
