@@ -5,6 +5,7 @@ from flask_socketio import SocketIO, emit
 import time
 import socket
 import json
+import redis
 
 jointTypeDict = [
         "SpineBase",
@@ -33,6 +34,21 @@ jointTypeDict = [
         "HandTipRight",
         "ThumbRight"
     ];
+# Set this variable to "threading", "eventlet" or "gevent" to test the
+# different async modes, or leave it set to None for the application to choose
+# the best option based on installed packages.
+async_mode = None
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret!'
+socketio = SocketIO(app, async_mode=async_mode)
+thread = None
+thread_lock = Lock()
+
+database = redis.Redis(
+    host='localhost',
+    port=6379,
+)
 
 class SocketReceiver:
     '''demonstration class only
@@ -62,24 +78,17 @@ class SocketReceiver:
           chunk.append(ichar)
 
 
-# Set this variable to "threading", "eventlet" or "gevent" to test the
-# different async modes, or leave it set to None for the application to choose
-# the best option based on installed packages.
-async_mode = None
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, async_mode=async_mode)
-thread = None
-thread_lock = Lock()
 
 
 def background_thread():
     """Example of how to send server generated events to clients."""
     count = 0
     client = SocketReceiver();
-    client.connect("127.0.0.1", 12345)
+    #client.connect("127.0.0.1", 12345)
     while True:
+        global database
+        s = database.get('pic')
         # frame_data = client.receiveFrame()
         # print frame_data
         # print '*' * 20
@@ -87,7 +96,7 @@ def background_thread():
         count += 1
         timenow = str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
         socketio.emit('my_response',
-                      {'data': timenow, 'count': count},
+                      {'data': s, 'count': count},
                       namespace='/test')
 
 
@@ -124,4 +133,5 @@ def test_disconnect():
 
 
 if __name__ == '__main__':
+
     socketio.run(app, debug=True)
