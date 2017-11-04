@@ -27,8 +27,10 @@
   </style>
   <script type="text/javascript">
   $(document).ready(function() {
-      today = new Date();
-      $("#date").text(today.toLocaleString());
+    var today = new Date();
+    $("#date").text(today.toLocaleString());
+    var sittingState;
+    var skeletonColor = ["green", "orange", "orange", "red"];
 
     jointTypeDict = {
       "SpineBase": 0,
@@ -154,13 +156,18 @@
       .attr("cy", function(d) {
         return scaley(d[1]);
       })
-      .attr("r", 5);
+      .attr("r", 5)
+      .attr("fill", function(d) {
+        return skeletonColor[sittingState];
+      });
 
     lineData = generateLine(skeletonData);
     skeletonSvg.selectAll("Path").data(lineData).enter()
       .append("path")
       .attr("d", lineFunction)
-      .attr("stroke", "black")
+      .attr("stroke", function(d) {
+        return skeletonColor[sitting State];
+      })
       .attr("stroke-width", 2);
 
     heatmapData = [];
@@ -232,14 +239,19 @@
         .attr("cy", function(d) {
           return scaley(d[1]);
         })
-        .attr("r", 5);
+        .attr("r", 5)
+        .attr("fill", function(d) {
+          return skeletonColor[sittingState];
+        });
 
       lineData = generateLine(skeletonData);
       skeletonSvg.selectAll("Path")
         .data(lineData)
         .transition()
         .attr("d", lineFunction)
-        .attr("stroke", "black")
+        .attr("stroke", function(d) {
+          return skeletonColor[sittingState];
+        })
         .attr("stroke-width", 2);
     };
 
@@ -273,10 +285,10 @@
       skeletonData = eval("(" + msg.data + ")");
       skeletonData = skeletonData[0];
       updateSkeleton(skeletonData);
-      if(parseInt(msg.count)%10 == 0){
-          heatmapData = eval("(" + msg.heatmap + ")");
-          console.log(heatmapData);
-          updateHeatmap(heatmapData);
+      if (parseInt(msg.count) % 10 == 0) {
+        heatmapData = eval("(" + msg.heatmap + ")");
+        console.log(heatmapData);
+        updateHeatmap(heatmapData);
       }
 
 
