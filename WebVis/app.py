@@ -39,16 +39,13 @@ jointTypeDict = [
 # the best option based on installed packages.
 async_mode = None
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="/static")
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 thread_lock = Lock()
 
-database = redis.Redis(
-    host='localhost',
-    port=6379,
-)
+database = redis.Redis(host='localhost', port=6379,)
 
 class SocketReceiver:
     '''demonstration class only
@@ -79,24 +76,24 @@ class SocketReceiver:
 
 
 
-
-
 def background_thread():
     """Example of how to send server generated events to clients."""
     count = 0
     client = SocketReceiver();
-    #client.connect("127.0.0.1", 12345)
     while True:
         global database
         s = database.get('pic')
-        # frame_data = client.receiveFrame()
-        # print frame_data
-        # print '*' * 20
-        socketio.sleep(0.05)
+        socketio.sleep(0.1)
         count += 1
-        timenow = str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
+        position_data = json.loads(s);
+        print position_data
+        print type(position_data)
+
+        position_data = position_data[0]
+
+
         socketio.emit('my_response',
-                      {'data': s, 'count': count},
+                      {'data': s, 'count': count, 'heatmap': heatmap, 'sitting': sitting},
                       namespace='/test')
 
 
@@ -110,7 +107,6 @@ def test_message(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my_response',
          {'data': message['data'], 'count': session['receive_count']})
-
 
 
 @socketio.on('my_ping', namespace='/test')
