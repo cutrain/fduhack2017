@@ -56969,10 +56969,7 @@ Floated Menu / Item
     // The callback function is invoked whenever the server emits data
     // to the client. The data is then displayed in the "Received"
     // section of the page.
-       var lineFunction = d3.svg.line()
-                          .x(function(d) { return d.x; })
-                          .y(function(d) { return d.y; })
-                          .interpolate("linear");
+
     updateSkeleton = function(skeletonData) {
       skeletonSvg.selectAll("circle")
         .data(skeletonData)
@@ -56986,7 +56983,24 @@ Floated Menu / Item
           return d[1];
         })
         .attr("r", 5);
+      lineData = generateLine(skeletonData);
+      for (var i in lineData) {
+          skeletonSvg.append("path")
+              .attr("d", lineFunction(lindData[i]))
+              .attr("stroke", "black")
+              .attri("stroke-width", 2);
+      }
     };
+    generateLine = function(skeletonData){
+        var pointPairs = []
+        pointPairs.push([{"x": skeletonData[2][0], "y": skeletonData[2][1]},
+                        {"x": skeletonDada[3][0], "y":skeletonData[3][1]}]);
+        return pointPairs;
+    };
+    var lineFunction = d3.svg.line()
+                          .x(function(d) { return d.x; })
+                          .y(function(d) { return d.y; })
+                          .interpolate("linear");
     updateHeatmap = function(heatmapData) {
       heatmapSvg.selectAll("rect")
         .data(heatmapData)
