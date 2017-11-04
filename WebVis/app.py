@@ -61,8 +61,6 @@ class SocketReceiver:
         else :
           chunk.append(ichar)
 
-client = SocketReceiver();
-client.connect("127.0.0.1", 12345)
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -79,16 +77,18 @@ thread_lock = Lock()
 def background_thread():
     """Example of how to send server generated events to clients."""
     count = 0
+    client = SocketReceiver();
+    client.connect("127.0.0.1", 12345)
     while True:
-        frame_data = client.receiveFrame()
-        print frame_data
-        print '*' * 20
-        # socketio.sleep(0.1)
-        # count += 1
-        # timenow = str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
-        # socketio.emit('my_response',
-        #               {'data': timenow, 'count': count},
-        #               namespace='/test')
+        # frame_data = client.receiveFrame()
+        # print frame_data
+        # print '*' * 20
+        socketio.sleep(0.1)
+        count += 1
+        timenow = str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
+        socketio.emit('my_response',
+                      {'data': timenow, 'count': count},
+                      namespace='/test')
 
 
 @app.route('/')
