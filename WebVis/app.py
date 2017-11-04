@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from threading import Lock
-from flask import Flask, render_template, session, request
+from flask import Flask, render_template, session, request, url_for
 from flask_socketio import SocketIO, emit
 import time
 
@@ -27,6 +27,9 @@ def background_thread():
                       {'data': timenow, 'count': count},
                       namespace='/test')
 
+@app.route('/semantic')
+def get_semantic_js():
+    return url_for('../semantic/out/semantic.js');
 
 @app.route('/')
 def index():
