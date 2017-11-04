@@ -292,6 +292,8 @@ WebVis/.idea/
 # dy
 *.swp
 3dposition
+temp.wav
 
 #vcxproj
 *.vcxproj
+*.wav
