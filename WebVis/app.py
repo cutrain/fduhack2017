@@ -92,7 +92,7 @@ def background_thread():
         # frame_data = client.receiveFrame()
         # print frame_data
         # print '*' * 20
-        socketio.sleep(0.1)
+        socketio.sleep(0.05)
         count += 1
         timenow = str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
         socketio.emit('my_response',
@@ -124,7 +124,7 @@ def test_connect():
     with thread_lock:
         if thread is None:
             thread = socketio.start_background_task(target=background_thread)
-    emit('my_response', {'data': 'Connected', 'count': 0})
+    # emit('my_response', {'data': 'Connected', 'count': 0})
 
 
 @socketio.on('disconnect', namespace='/test')

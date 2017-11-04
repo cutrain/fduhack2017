@@ -179,7 +179,7 @@ public:
 			for (int jti = 0; jti < JointType_Count; jti++) {
 				if (jti) ss << ",";
 				if (bodyPoints[bodyi][jti][2] < 0) {
-					ss << "undefined";
+					ss << "0";
 				}else {
 					ss << "[";
 					for (int dimi = 0; dimi < 3; dimi++) {
@@ -191,7 +191,7 @@ public:
 			}
 			ss << "]";
 		}
-		ss << "];";
+		ss << "]";
 		// spliter
 		ss << "*";
 		return ss.str();
