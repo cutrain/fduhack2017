@@ -56969,6 +56969,10 @@ Floated Menu / Item
     // The callback function is invoked whenever the server emits data
     // to the client. The data is then displayed in the "Received"
     // section of the page.
+       var lineFunction = d3.svg.line()
+                          .x(function(d) { return d.x; })
+                          .y(function(d) { return d.y; })
+                          .interpolate("linear");
     updateSkeleton = function(skeletonData) {
       skeletonSvg.selectAll("circle")
         .data(skeletonData)
@@ -57009,10 +57013,10 @@ Floated Menu / Item
       $("#lastingSec").text(Math.floor((now - startTime) % 60000 / 1000));
       console.log(msg.data);
 
-      skeletonData = [];
-      for (var i = 0; i < 5; i++) {
-        skeletonData.push([Math.random() * 100, Math.random() * 100]);
-      }
+      skeletonData = msg.data[0]
+//      for (var i = 0; i < 5; i++) {
+//        skeletonData.push([Math.random() * 100, Math.random() * 100]);
+//      }
       updateSkeleton(skeletonData);
       heatmapData = [];
       for (var i = 0; i < 15; i++) {
