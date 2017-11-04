@@ -41,6 +41,5 @@ int SocketTransfer::transfer(std::string data) {
 
 	// Send back a response.
 	stream->Write(msg, 0, msg->Length);
-	Console::WriteLine("Sent: {0}", datastr);
 	return 1;
 };

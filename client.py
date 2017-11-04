@@ -1,7 +1,7 @@
 import socket
+import json
 
-MSGLEN = 8;
-class mysocket:
+class SocketReceiver:
     '''demonstration class only
       - coded for clarity, not efficiency
     '''
@@ -51,12 +51,12 @@ class mysocket:
         if ichar == "":
           raise RuntimeError("socket connection broken")
         elif ichar == "*":
-          print "".join(chunk)
-          chunk = []
+          oneframe = eval("".join(chunk))
+          return oneframe
         else :
-          chunk.append(chunk)
+          chunk.append(ichar)
 
-client = mysocket();
+client = SocketReceiver();
 client.connect("127.0.0.1", 12345)
 while 1 :
   client.receiveFrame()
