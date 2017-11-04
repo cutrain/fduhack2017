@@ -57,7 +57,7 @@ class SocketReceiver:
                 chunk.append(ichar)
 
 if __name__ == '__main__':
-    # client = SocketReceiver()
-    # client.connect("127.0.0.1", 12345)
-    # while True:
-        # client.receiveFrame()
+    client = SocketReceiver()
+    client.connect("127.0.0.1", 12345)
+    while True:
+        client.receiveFrame()

@@ -293,6 +293,8 @@ WebVis/.idea/
 *.swp
 3dposition
 temp.wav
+venv/
+dump.rdb
 
 #vcxproj
 *.vcxproj
