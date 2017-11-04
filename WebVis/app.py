@@ -49,7 +49,7 @@ thread_lock = Lock()
 
 database = redis.Redis(host='localhost', port=6379,)
 
-class body(Enum):
+class body(object):
     SpineBase = 0
     SpineMid  = 1
     Neck  = 2
@@ -96,9 +96,9 @@ class vector(object):
         import math
         return math.acos(
             (
-                (v[0]*self.v[0] + v[1] * self.v[1] + v2 * self.v[2]) /
-                (veclen(v) * veclen(self.v))
-            ) * 180. / 3.1415926
+                (v[0]*self.v[0] + v[1] * self.v[1] + v[2] * self.v[2]) /
+                (self.veclen(v) * self.veclen(self.v))
+            )
         )
 
     def dis(self, p):
@@ -108,10 +108,10 @@ class vector(object):
         ans = []
         for i in range(3):
             ans.append(self.v[i] * v[i])
-        return veclen(ans) / veclen(v[i])
+        return self.veclen(ans) / self.veclen(v)
 
 def check_body(bp):
-    b = body
+    b = body()
     top = bp[b.Head]
     bottom = bp[b.SpineBase]
     line = vector(top, bottom)
@@ -121,7 +121,7 @@ def check_body(bp):
     badness += line.dis(bp[b.SpineShoulder])
     badness += line.dis(bp[b.SpineMid])
     # body shoulder
-    shoulder = vector(bp[b.shoulder], bp[b.ShoulderLeft])
+    shoulder = vector(bp[b.SpineShoulder], bp[b.ShoulderLeft])
     angle = shoulder.angle(bp[b.ShoulderRight])
     print badness
     if badness > 0.3 and angle < 150:
@@ -154,7 +154,6 @@ def background_thread():
     for i in range(50):
         for j in range(50):
             heatmap_json.append([i, j, 0])
-    client = SocketReceiver();
     while True:
         global database
         s = database.get('pic')
