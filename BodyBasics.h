@@ -157,18 +157,13 @@ private:
 
 class BodyTransport
 {
-#define TEXT_LIMIT 256
 public:
 	int bodyCount;
 	float bodyPoints[BODY_COUNT][JointType_Count][3];
-	int tLen;
-	char text[TEXT_LIMIT];
 
 	BodyTransport()
 	{
 		bodyCount = 0;
-		tLen = 0;
-		memset(text, 0, sizeof(text));
 	}
 	bool AddBody(Joint* joints, int cnt)
 	{
@@ -189,16 +184,4 @@ public:
 		++bodyCount;
 		return true;
 	}
-	bool AddText(char *str)
-	{
-		int len = strlen(str);
-		int tLen = strlen(text);
-		if (tLen + len > TEXT_LIMIT)
-			return false;
-		for (int i = 0; i < len; ++i)
-			text[tLen + i] = str[i];
-		tLen += len;
-		return true;
-	}
-#undef TEXT_LIMIT
 };
