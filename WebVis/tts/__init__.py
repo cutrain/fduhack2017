@@ -21,6 +21,8 @@ class TextToSpeech(object):
         return ret
 
     def play(self, istream=None, filename=None):
+        if istream is None and filename is None:
+            return
         try:
             if filename is not None:
                 with open(filename, 'rb') as f:

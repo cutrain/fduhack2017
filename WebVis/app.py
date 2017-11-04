@@ -88,6 +88,18 @@ class vector(object):
         import math
         return math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2])
 
+    def angle(self, p):
+        v = []
+        for i in range(3):
+            v.append(p[i]-self.p[i])
+        import math
+        return math.acos(
+            (
+                (v[0]*self.v[0] + v[1] * self.v[1] + v2 * self.v[2]) /
+                (veclen(v) * veclen(self.v))
+            ) * 180. / 3.1415926
+        )
+
     def dis(self, p):
         v = []
         for i in range(3):
@@ -97,21 +109,40 @@ class vector(object):
             ans.append(self.v[i] * v[i])
         return veclen(ans) / veclen(v[i])
 
+
 def check_body(bp):
     b = body
     top = bp[b.Head]
     bottom = bp[b.SpineBase]
     line = vector(top, bottom)
     badness = 0
+    # body spine
     badness += line.dis(bp[b.Neck])
     badness += line.dis(bp[b.SpineShoulder])
     badness += line.dis(bp[b.SpineMid])
+    # body shoulder
+    shoulder = vector(bp[b.shoulder], bp[b.ShoulderLeft])
+    angle = shoulder.angle(bp[b.ShoulderRight])
     print badness
-    if badness > 0.3:
+    if badness > 0.3 or angle < 150:
         return 2
     if badness > 0.1:
         return 1
     return 0
+
+
+def right_position(body):
+    state = check_body(body)
+    # from tts import TextToSpeech
+    # tapi = TextToSpeech()
+    # if state == 0:
+        # wav = tapi.post("Perfect")
+    # elif state == 1:
+        # wav = tapi.post("Good")
+    # else:
+        # wav = tapi.post("Better nect time")
+    # tapi.play(istream=wav)
+    return state
 
 
 def background_thread():
@@ -128,7 +159,6 @@ def background_thread():
 
         position_data = position_data[0]
 
-
         socketio.emit('my_response',
                       {'data': s, 'count': count, 'heatmap': heatmap, 'sitting': sitting},
                       namespace='/test')
@@ -138,6 +168,11 @@ def background_thread():
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
 
+@app.route('/audio/<string:text>', methods=['POST'])
+def audio(text):
+    from tts import TextToSpeech
+    tapi = TextToSpeech()
+    tapi.post(text, text+'.wav')
 
 @socketio.on('my_event', namespace='/test')
 def test_message(message):
@@ -163,7 +198,6 @@ def test_connect():
 @socketio.on('disconnect', namespace='/test')
 def test_disconnect():
     print('Client disconnected', request.sid)
-
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
