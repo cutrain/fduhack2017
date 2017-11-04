@@ -57007,6 +57007,7 @@ Floated Menu / Item
       var now = new Date();
       $("#lastingMin").text(Math.floor((now - startTime) / 60000));
       $("#lastingSec").text(Math.floor((now - startTime) % 60000 / 1000));
+      console.log(msg.data);
 
       skeletonData = [];
       for (var i = 0; i < 5; i++) {
@@ -57063,20 +57064,16 @@ Floated Menu / Item
   <div class="main">
     <div class="container-fluid text center" style="height: 100%">
       <div class="row content" style="height: 100%;">
-        <div class="col-sm-4 well" id="statPanel" style="height: 100%;">
-          <h1>Skeleton Monitor</h1>
+        <div class="col-sm-4" id="statPanel" style="height: 100%;">
+          <h1 class="ui green header">Skeleton Monitor</h1>
           <p>Average ping/pong latency: <b><span id="ping-pong"></span>ms</b></p>
           <p>Monitor Time: <b><span id="lastingMin"></span> min <span id="lastingSec"></span> s </b></p>
-          <h1>Your Custom Sitting</h1>
+          <h1 class="ui green header">Your Custom Sitting</h1>
           <div id="heatmap" style="height: 80%; width: 100%"></div>
         </div>
-        <div class="col-sm-8 well" id="skeletonView" style="height: 100%;">
-          <h1>Real-time Reflection</h1>
-          <div id="skeleton" style="width: 300px; height: 300px;"></div>
-          <div id="log"></div>
-          <button class="ui button">
-            Follow
-          </button>
+        <div class="col-sm-8" id="skeletonView" style="height: 100%;">
+          <h1 class="ui green header">Real-time Reflection</h1>
+          <div id="skeleton" style="width: 100%; height: 80%"></div>
         </div>
       </div>
     </div>
