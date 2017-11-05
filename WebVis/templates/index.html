@@ -27,6 +27,14 @@
   </style>
   <script type="text/javascript">
   $(document).ready(function() {
+      var badnessStd = 0.2;
+      var angleStd = 140;
+      var badness = 0.2;
+      var angle = 140;
+      $("#setStandard").on("click",function(){
+          badnessStd = badnessStd * 1.1;
+          angleStd = angle * 0.95;
+      })
     var today = new Date();
     $("#date").text(today.toLocaleString());
     var preSittingState = 0;
@@ -133,14 +141,16 @@
       .attr("id", "skeletonSvg")
       .attr("preserveAspectRatio", "xMidYMid")
       .attr("width", "100%")
-      .attr("height", "100%");
+      .attr("height", "100%")
+        .attr("viewBox", "50 30 400 300");
 
     var heatmapSvg = d3.select("#heatmap")
       .append("svg")
       .attr("id", "heatmapSvg")
       .attr("preserveAspectRatio", "xMidYMid")
       .attr("width", "100%")
-      .attr("height", "100%");
+      .attr("height", "100%")
+       .attr("viewBox", "-40 80 480 360");
 
     svgWidth = 400;
     svgHeight = 300;
@@ -162,7 +172,7 @@
       .attr("cy", function(d) {
         return scaley(d[1]);
       })
-      .attr("r", 5)
+      .attr("r", 7)
       .attr("fill", function(d) {
         return "black";
       });
@@ -174,7 +184,7 @@
       .attr("stroke", function(d) {
         return "black";
       })
-      .attr("stroke-width", 2);
+      .attr("stroke-width", 4);
 
 
     heatmapSvg.selectAll("circle")
@@ -229,26 +239,26 @@
       if (msg.data.length < 5) { return; }
       preSittingState = sittingState;
 
-      var badness = eval(msg.badness);
-      var angle = eval(msg.angle);
-      if(badness > 0.4 && angle < 140){
+      badness = eval(msg.badness);
+      angle = eval(msg.angle);
+      if(badness > badnessStd && angle < angleStd){
           sittingState = 3;
-      }else if(badness > 0.4){
+      }else if(badness > badnessStd){
           sittingState = 2;
-      }else if(angle < 140){
+      }else if(angle < angleStd){
           sittingState = 1;
       }else{
           sittingState = 0;
       }
 
-      console.log(sittingState);
+      //console.log(sittingState);
 
     switch (sittingState) {
         case 3:
           $("#badnessEmotion").attr("class", "frown huge red icon");
           $("#angleEmotion").attr("class", "frown huge red icon");
           if (preSittingState != sittingState){
-              myAudio = new Audio("/static/audio/perfect.wav");
+              myAudio = new Audio("/static/audio/herrible.wav");
               myAudio.play();
           }
 
@@ -257,7 +267,7 @@
           $("#badnessEmotion").attr("class", "frown huge red icon");
           $("#angleEmotion").attr("class", "smile huge green icon");
           if (preSittingState != sittingState){
-              myAudio = new Audio("/static/audio/perfect.wav");
+              myAudio = new Audio("/static/audio/back.wav");
               myAudio.play();
           }
           break;
@@ -265,7 +275,7 @@
           $("#badnessEmotion").attr("class", "smile huge green icon");
           $("#angleEmotion").attr("class", "frown huge red icon");
           if (preSittingState != sittingState){
-              myAudio = new Audio("/static/audio/good.wav");
+              myAudio = new Audio("/static/audio/shoulder.wav");
               myAudio.play();
           }
           break;
@@ -290,7 +300,6 @@
         .attr("cy", function(d) {
           return scaley(d[1]);
         })
-        .attr("r", 5)
          .attr("fill", function(d) {
         return skeletonColor[sittingState] ;
       });
@@ -304,8 +313,7 @@
         .attr("d", lineFunction)
         .attr("stroke", function(d) {
         return skeletonColor[sittingState];
-      })
-        .attr("stroke-width", 2);
+      });
 
 
       if(parseInt(msg.count)%10 == 0){
@@ -313,7 +321,7 @@
           $("#angle").text(parseFloat(msg.angle).toFixed(2));
 
           heatmapData = eval("(" + msg.heatmap + ")");
-          console.log(heatmapData);
+          //console.log(heatmapData);
 
           heatmapSvg.selectAll("circle")
         .data(heatmapData)
@@ -323,16 +331,13 @@
         })
         .attr("cy", function(d) {
           return scaley(d[1]);
-        })
-        .attr("r", 5);
+        });
 
       lineData = generateLine(heatmapData);
       heatmapSvg.selectAll("Path")
         .data(lineData)
         .transition()
-        .attr("d", lineFunction)
-        .attr("stroke", "black")
-        .attr("stroke-width", 2);
+        .attr("d", lineFunction);
       }
     });
 
@@ -388,7 +393,8 @@
           <h1 class="ui blue header">实时反馈</h1>
           <div id="skeleton" style="width: 100%; height: 80%"></div>
           <p>挺胸：<b><span id="badness"></span></b><i id="badnessEmotion"></i>
-               抬头：<b><span id="angle"></span></b><i id="angleEmotion"></i></p>
+               抬头：<b><span id="angle"></span></b><i id="angleEmotion"></i>
+          <button class="ui primary button" type="submit" id="setStandard">设为基准</button></p>
         </div>
       </div>
     </div>

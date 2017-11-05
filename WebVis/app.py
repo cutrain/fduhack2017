@@ -122,7 +122,7 @@ def check_body(bp):
     # body shoulder
     shoulder = vector(bp[b.SpineShoulder], bp[b.ShoulderLeft])
     angle = shoulder.angle(bp[b.ShoulderRight])
-    print badness, '%', angle
+    # print badness, '%', angle
     # a = True
     # b = True
     # if badness >0.4:
@@ -171,7 +171,7 @@ def background_thread():
         position_data = json.loads(s);
         position_data = position_data[0]
         state = check_body(position_data)
-        print 'state :', state
+        # print 'state :', state
 
         if heatmap_data == []:
             heatmap_data = np.array(position_data)
