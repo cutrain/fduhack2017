@@ -123,12 +123,22 @@ def check_body(bp):
     shoulder = vector(bp[b.SpineShoulder], bp[b.ShoulderLeft])
     angle = shoulder.angle(bp[b.ShoulderRight])
     print badness, '%', angle
-    if badness > 0.3 and angle < 150:
-        return 3
-    if badness > 0.3 or angle < 150:
-        return 2
-    if badness > 0.1:
-        return 1
+    # a = True
+    # b = True
+    # if badness >0.4:
+    #     a = False
+    # if angle < 140:
+    #     b = False
+
+    # return -
+    return [badness, angle]
+    # print badness,angle
+    # if badness > 0.4 and angle < 145:
+    #     return 3
+    # if badness > 0.4 and angle >= 145:
+    #     return 2
+    # if badness < 0.4 and angle < 145:
+    #     return 1
     return 0
 
 
@@ -184,7 +194,7 @@ def background_thread():
 
 
         socketio.emit('my_response',
-                      {'data': s, 'count': count, 'heatmap': str([list(x) for x in heatmap_data]), 'sitting': state},
+                      {'data': s, 'count': count, 'heatmap': str([list(x) for x in heatmap_data]), 'badness': state[0], 'angle':state[1]},
                       namespace='/test')
 
 
