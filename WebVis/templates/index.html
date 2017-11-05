@@ -27,6 +27,7 @@
   </style>
   <script type="text/javascript">
   $(document).ready(function() {
+      var sittingState = 0;
       myaudio = new Audio("/static/audio/ai.mp3");
       myaudio.play();
     var today = new Date();
@@ -224,19 +225,27 @@
     // section of the page.
 
     socket.on('my_response', function(msg) {
-        function getSittingState(){
-            return 0;
-        }
+
+
       var now = new Date();
       $("#lastingMin").text(Math.floor((now - startTime) / 60000));
       $("#lastingSec").text(Math.floor((now - startTime) % 60000 / 1000));
       if (msg.data.length < 5) { return; }
+
+      var badness = eval(msg.badness);
+      var angle = eval(msg.angle);
+      if(badness > 0.4 && angle < 140){
+          sittingState = 3;
+      }else if(badness > 0.4){
+          sittingState = 2;
+      }else if(angle < 140){
+          sittingState = 1;
+      }else{
+          sittingState = 0;
+      }
+
       skeletonData = eval("(" + msg.data + ")");
       skeletonData = skeletonData[0];
-
-        sittingState = parseInt(msg.sitting);
-      console.log(sittingState)
-
       // update skeleton
       skeletonSvg.selectAll("circle")
         .data(skeletonData)
@@ -249,7 +258,7 @@
         })
         .attr("r", 5)
          .attr("fill", function(d) {
-        return skeletonColor[getSittingState()] ;
+        return skeletonColor[sittingState] ;
       });
 
       lineData = generateLine(skeletonData);
@@ -258,7 +267,7 @@
         .transition()
         .attr("d", lineFunction)
         .attr("stroke", function(d) {
-        return skeletonColor[getSittingState()];
+        return skeletonColor[sittingState];
       })
         .attr("stroke-width", 2);
 
@@ -266,6 +275,7 @@
       if(parseInt(msg.count)%10 == 0){
           $("#badness").text(msg.badness);
           $("#angle").text(msg.angle);
+
           heatmapData = eval("(" + msg.heatmap + ")");
           console.log(heatmapData);
 

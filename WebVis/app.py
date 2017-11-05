@@ -111,12 +111,12 @@ class vector(object):
 
 def check_body(bp):
     b = body()
-    top = bp[b.Head]
+    top = bp[b.Neck]
     bottom = bp[b.SpineBase]
     line = vector(top, bottom)
     badness = 0
     # body spine
-    badness += line.dis(bp[b.Neck])
+    badness += line.dis(bp[b.Head])
     badness += line.dis(bp[b.SpineShoulder])
     badness += line.dis(bp[b.SpineMid])
     # body shoulder
