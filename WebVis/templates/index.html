@@ -29,7 +29,8 @@
   $(document).ready(function() {
     var today = new Date();
     $("#date").text(today.toLocaleString());
-    var sittingState;
+    var preSittingState = 0;
+    var sittingState = 0;
     var skeletonColor = ["green", "yellow", "orange", "red"];
     jointTypeDict = {
       "SpineBase": 0,
@@ -225,9 +226,8 @@
       var now = new Date();
       $("#lastingMin").text(Math.floor((now - startTime) / 60000));
       $("#lastingSec").text(Math.floor((now - startTime) % 60000 / 1000));
-
-
       if (msg.data.length < 5) { return; }
+      preSittingState = sittingState;
 
       var badness = eval(msg.badness);
       var angle = eval(msg.angle);
@@ -242,30 +242,40 @@
       }
 
       console.log(sittingState);
+
     switch (sittingState) {
         case 3:
-          $("#badnessEmotion").attr("class", "frown red icon");
-          $("#angleEmotion").attr("class", "frown red icon");
-          myAudio = new Audio("/static/audio/perfect.wav");
-          myAudio.play();
+          $("#badnessEmotion").attr("class", "frown huge red icon");
+          $("#angleEmotion").attr("class", "frown huge red icon");
+          if (preSittingState != sittingState){
+              myAudio = new Audio("/static/audio/perfect.wav");
+              myAudio.play();
+          }
+
           break;
         case 2:
-          $("#badnessEmotion").attr("class", "frown red icon");
-          $("#angleEmotion").attr("class", "smile green icon");
-          myAudio = new Audio("/static/audio/perfect.wav");
-          myAudio.play();
+          $("#badnessEmotion").attr("class", "frown huge red icon");
+          $("#angleEmotion").attr("class", "smile huge green icon");
+          if (preSittingState != sittingState){
+              myAudio = new Audio("/static/audio/perfect.wav");
+              myAudio.play();
+          }
           break;
         case 1:
-          $("#badnessEmotion").attr("class", "smile green icon");
-          $("#angleEmotion").attr("class", "frown red icon");
-          myAudio = new Audio("/static/audio/perfect.wav");
-          myAudio.play();
+          $("#badnessEmotion").attr("class", "smile huge green icon");
+          $("#angleEmotion").attr("class", "frown huge red icon");
+          if (preSittingState != sittingState){
+              myAudio = new Audio("/static/audio/good.wav");
+              myAudio.play();
+          }
           break;
         case 0:
-          $("#badnessEmotion").attr("class", "smile green icon");
-          $("#angleEmotion").attr("class", "smile green icon");
-          myAudio = new Audio("/static/audio/perfect.wav");
-          myAudio.play();
+          $("#badnessEmotion").attr("class", "smile huge green icon");
+          $("#angleEmotion").attr("class", "smile huge green icon");
+          if (preSittingState != sittingState){
+              myAudio = new Audio("/static/audio/perfect.wav");
+              myAudio.play();
+          }
           break;
       }
       skeletonData = eval("(" + msg.data + ")");
@@ -299,8 +309,8 @@
 
 
       if(parseInt(msg.count)%10 == 0){
-          $("#badness").text(msg.badness);
-          $("#angle").text(msg.angle);
+          $("#badness").text(parseFloat(msg.badness).toFixed(2));
+          $("#angle").text(parseFloat(msg.angle).toFixed(2));
 
           heatmapData = eval("(" + msg.heatmap + ")");
           console.log(heatmapData);
@@ -366,19 +376,19 @@
     <div class="container-fluid text center" style="height: 100%">
       <div class="row content" style="height: 100%; padding: 20px;">
         <div class="col-sm-4 well" id="statPanel" style="height: 100%; margin-right: 15px">
-          <h1 class="ui blue header">拯救程序员：坐姿检测器</h1>
+          <h1 class="ui blue header">救救程序员</h1>
           <p><i class="calendar icon"></i>今天是：<b><span id="date"></span></b></p>
           <p><i class="arrow circle down icon"></i>后台通信平均网络延迟: <b><span id="ping-pong"></span>ms</b></p>
           <p><i class="unhide icon"></i>已检测时间: <b><span id="lastingMin"></span> 分钟 <span id="lastingSec"></span> 秒 </b></p>
           <p><i class="keyboard icon"></i>队伍成员：段宇，梁辰，胡天晓</p>
-          <h1 class="ui blue header">坐姿习惯反馈</h1>
+          <h1 class="ui blue header">习惯反馈</h1>
           <div id="heatmap" style="height: 80%; width: 100%"></div>
         </div>
         <div class="col-sm-7 well" id="skeletonView" style="height: 100%; margin-left: 15px">
-          <h1 class="ui blue header">坐姿实时反馈</h1>
+          <h1 class="ui blue header">实时反馈</h1>
           <div id="skeleton" style="width: 100%; height: 80%"></div>
-          <p><b><span id="badness"></span></b><i id="badnessEmotion"></i></p>
-          <p><b><span id="angle"></span></b><i id="angleEmotion"></i></p>
+          <p>挺胸：<b><span id="badness"></span></b><i id="badnessEmotion"></i>
+               抬头：<b><span id="angle"></span></b><i id="angleEmotion"></i></p>
         </div>
       </div>
     </div>
