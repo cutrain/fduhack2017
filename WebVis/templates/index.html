@@ -27,8 +27,8 @@
   </style>
   <script type="text/javascript">
   $(document).ready(function() {
-      myaudio = new Audio("/static/audio/ai.mp3");
-      myaudio.play();
+    myaudio = new Audio("/static/audio/ai.mp3");
+    myaudio.play();
     var today = new Date();
     $("#date").text(today.toLocaleString());
     var sittingState;
@@ -224,17 +224,44 @@
     // section of the page.
 
     socket.on('my_response', function(msg) {
-        function getSittingState(){
-            return 0;
-        }
+      function getSittingState() {
+        return 0;
+      }
       var now = new Date();
       $("#lastingMin").text(Math.floor((now - startTime) / 60000));
       $("#lastingSec").text(Math.floor((now - startTime) % 60000 / 1000));
+      switch (sittingState) {
+        case 3:
+          $("#badnessEmotion").attr("class", "frown red icon");
+          $("#angleEmotion").attr("class", "frown red icon");
+          myAudio = new Audio("/static/audio/perfect.wav");
+          myAudio.play();
+          break;
+        case 2:
+          $("#badnessEmotion").attr("class", "frown red icon");
+          $("#angleEmotion").attr("class", "smile green icon");
+          myAudio = new Audio("/static/audio/perfect.wav");
+          myAudio.play();
+          break;
+        case 1:
+          $("#badnessEmotion").attr("class", "smile green icon");
+          $("#angleEmotion").attr("class", "frown red icon");
+          myAudio = new Audio("/static/audio/perfect.wav");
+          myAudio.play();
+          break;
+        case 0:
+          $("#badnessEmotion").attr("class", "smile green icon");
+          $("#angleEmotion").attr("class", "smile green icon");
+          myAudio = new Audio("/static/audio/perfect.wav");
+          myAudio.play();
+          break;
+      }
+
       if (msg.data.length < 5) { return; }
       skeletonData = eval("(" + msg.data + ")");
       skeletonData = skeletonData[0];
 
-        sittingState = parseInt(msg.sitting);
+      sittingState = parseInt(msg.sitting);
       console.log(sittingState)
 
       // update skeleton
@@ -248,9 +275,9 @@
           return scaley(d[1]);
         })
         .attr("r", 5)
-         .attr("fill", function(d) {
-        return skeletonColor[getSittingState()] ;
-      });
+        .attr("fill", function(d) {
+          return skeletonColor[getSittingState()];
+        });
 
       lineData = generateLine(skeletonData);
       skeletonSvg.selectAll("Path")
@@ -258,35 +285,35 @@
         .transition()
         .attr("d", lineFunction)
         .attr("stroke", function(d) {
-        return skeletonColor[getSittingState()];
-      })
+          return skeletonColor[getSittingState()];
+        })
         .attr("stroke-width", 2);
 
 
-      if(parseInt(msg.count)%10 == 0){
-          $("#badness").text(msg.badness);
-          $("#angle").text(msg.angle);
-          heatmapData = eval("(" + msg.heatmap + ")");
-          console.log(heatmapData);
+      if (parseInt(msg.count) % 10 == 0) {
+        $("#badness").text(parseFloat(msg.badness).toFixed(2));
+        $("#angle").text(parseFloat(msg.angle).toFixed(1));
+        heatmapData = eval("(" + msg.heatmap + ")");
+        console.log(heatmapData);
 
-          heatmapSvg.selectAll("circle")
-        .data(heatmapData)
-        .transition()
-        .attr("cx", function(d) {
-          return scalex(d[0]);
-        })
-        .attr("cy", function(d) {
-          return scaley(d[1]);
-        })
-        .attr("r", 5);
+        heatmapSvg.selectAll("circle")
+          .data(heatmapData)
+          .transition()
+          .attr("cx", function(d) {
+            return scalex(d[0]);
+          })
+          .attr("cy", function(d) {
+            return scaley(d[1]);
+          })
+          .attr("r", 5);
 
-      lineData = generateLine(heatmapData);
-      heatmapSvg.selectAll("Path")
-        .data(lineData)
-        .transition()
-        .attr("d", lineFunction)
-        .attr("stroke", "black")
-        .attr("stroke-width", 2);
+        lineData = generateLine(heatmapData);
+        heatmapSvg.selectAll("Path")
+          .data(lineData)
+          .transition()
+          .attr("d", lineFunction)
+          .attr("stroke", "black")
+          .attr("stroke-width", 2);
       }
     });
 
@@ -330,19 +357,19 @@
     <div class="container-fluid text center" style="height: 100%">
       <div class="row content" style="height: 100%; padding: 20px;">
         <div class="col-sm-4 well" id="statPanel" style="height: 100%; margin-right: 15px">
-          <h1 class="ui green header">拯救程序员：坐姿检测器</h1>
+          <h1 class="ui blue header">拯救程序员：坐姿检测器</h1>
           <p><i class="calendar icon"></i>今天是：<b><span id="date"></span></b></p>
           <p><i class="arrow circle down icon"></i>后台通信平均网络延迟: <b><span id="ping-pong"></span>ms</b></p>
           <p><i class="unhide icon"></i>已检测时间: <b><span id="lastingMin"></span> 分钟 <span id="lastingSec"></span> 秒 </b></p>
           <p><i class="keyboard icon"></i>队伍成员：段宇，梁辰，胡天晓</p>
-          <h1 class="ui green header">坐姿习惯反馈</h1>
+          <h1 class="ui blue header">坐姿习惯反馈</h1>
           <div id="heatmap" style="height: 80%; width: 100%"></div>
         </div>
         <div class="col-sm-7 well" id="skeletonView" style="height: 100%; margin-left: 15px">
-          <h1 class="ui green header">坐姿实时反馈</h1>
+          <h1 class="ui blue header">坐姿实时反馈</h1>
           <div id="skeleton" style="width: 100%; height: 80%"></div>
-            <p><b><span id="badness"></span></b></p>
-            <p><b><span id="angle"></span></b></p>
+          <p><b><span id="badness"></span></b><i id="badnessEmotion"></i></p>
+          <p><b><span id="angle"></span></b><i id="angleEmotion"></i></p>
         </div>
       </div>
     </div>
